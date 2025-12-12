@@ -345,7 +345,10 @@ export const CONTENT: Record<'en' | 'ar', ContentDictionary> = {
       articles: [
         { id: "7", category: "Regulatory Update", title: "Navigating the 2024 Amendments to the UAE Civil Procedure Law", date: "Nov 05, 2023", image: "https://images.unsplash.com/photo-1589578527966-fdac0f44566c?auto=format&fit=crop&q=80&w=800" },
         { id: "8", category: "Practice Management", title: "Cybersecurity Essentials for Dubai Law Firms", date: "Oct 28, 2023", image: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&q=80&w=800" },
-        { id: "1", category: "Regulatory Update", title: "New UAE Corporate Tax Implications for Law Firms", date: "Oct 12, 2023", image: "https://images.unsplash.com/photo-1589829085413-56de8ae18c73?auto=format&fit=crop&q=80&w=800" }
+        { id: "1", category: "Regulatory Update", title: "New UAE Corporate Tax Implications for Law Firms", date: "Oct 12, 2023", image: "https://images.unsplash.com/photo-1589829085413-56de8ae18c73?auto=format&fit=crop&q=80&w=800" },
+        { id: "4", category: "Market Analysis", title: "The Rise of Boutique Litigation Firms in Dubai", date: "Aug 30, 2023", image: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=800" },
+        { id: "5", category: "Regulatory Update", title: "AML Compliance: New Standards for 2024", date: "Aug 12, 2023", image: "https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fit=crop&q=80&w=800" },
+        { id: "6", category: "Legal Tech", title: "The Future of Bilingual Legal Contracts", date: "Jul 22, 2023", image: "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?auto=format&fit=crop&q=80&w=800" }
       ]
     },
     insightsPage: {
@@ -869,7 +872,10 @@ export const CONTENT: Record<'en' | 'ar', ContentDictionary> = {
       articles: [
         { id: "7", category: "تحديث تنظيمي", title: "تصفح تعديلات قانون الإجراءات المدنية الإماراتي لعام ٢٠٢٤", date: "٥ نوفمبر ٢٠٢٣", image: "https://images.unsplash.com/photo-1589578527966-fdac0f44566c?auto=format&fit=crop&q=80&w=800" },
         { id: "8", category: "إدارة الممارسة", title: "أساسيات الأمن السيبراني لمكاتب المحاماة في دبي", date: "٢٨ أكتوبر ٢٠٢٣", image: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&q=80&w=800" },
-        { id: "9", category: "تحديث تنظيمي", title: "إنفاذ الأحكام الأجنبية: تحديث ٢٠٢٤", date: "١٥ أكتوبر ٢٠٢٣", image: "https://images.unsplash.com/photo-1589391886645-d51941baf7fb?auto=format&fit=crop&q=80&w=800" }
+        { id: "9", category: "تحديث تنظيمي", title: "إنفاذ الأحكام الأجنبية: تحديث ٢٠٢٤", date: "١٥ أكتوبر ٢٠٢٣", image: "https://images.unsplash.com/photo-1589391886645-d51941baf7fb?auto=format&fit=crop&q=80&w=800" },
+        { id: "4", category: "تحليل السوق", title: "صعود شركات التقاضي المتخصصة في دبي", date: "٣٠ أغسطس ٢٠٢٣", image: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=800" },
+        { id: "5", category: "تنظيمي", title: "الامتثال لمكافحة غسل الأموال: معايير جديدة لعام ٢٠٢٤", date: "١٢ أغسطس ٢٠٢٣", image: "https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fit=crop&q=80&w=800" },
+        { id: "6", category: "التكنولوجيا القانونية", title: "مستقبل العقود القانونية ثنائية اللغة", date: "٢٢ يوليو ٢٠٢٣", image: "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?auto=format&fit=crop&q=80&w=800" }
       ]
     },
     insightsPage: {

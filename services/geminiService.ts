@@ -19,22 +19,75 @@ export interface ChatMessage {
   sources?: Source[];
 }
 
-const OFFICIAL_SOURCES_CONTEXT = `
-You are a highly professional legal assistant for LEXCORA.
-
-Your PRIMARY OBJECTIVE is to retrieve and verify legal information STRICTLY from the following official UAE government sources:
-1. UAE Legislation (English): https://uaelegislation.gov.ae/en
-2. UAE Legislation (Arabic): https://uaelegislation.gov.ae/ar
-3. Ministry of Justice - Laws & Legislation: https://www.moj.gov.ae/ar/about-moj/judicial-training-institute/laws-and-legislation.aspx
-4. Ministry of Justice - Studies & Researches: https://www.moj.gov.ae/ar/media-center/judicial-studies-magazine/studies-and-researches.aspx#page=1
-5. Abu Dhabi Judicial Department - Judgements: https://www.adjd.gov.ae/sites/eServices/AR/Pages/Judgements.aspx
-
-OPERATIONAL RULES:
-- Use the googleSearch tool to actively search ONLY within these specific domains for the user's query whenever possible.
-- Prioritize findings from these URLs above all other search results.
-- If the information is found in these sources, cite them clearly in your response.
-- MANDATORY DISCLAIMER: You must explicitly state that your response does not constitute legal advice.
+// Product context to make the bot helpful regarding the website's purpose
+const LEXCORA_PRODUCT_CONTEXT = `
+ABOUT LEXCORA:
+LEXCORA is a premium, UAE-focused Law Firm ERP (Enterprise Resource Planning) system designed for high-net-worth law firms and boutique legal consultancies.
+Key Features to Highlight when relevant:
+1. Productivity: Automated Judicial Deadline timers (appeals/objections), Smart Case Files with cross-referencing.
+2. Client Experience: dedicated Client Portal for secure file viewing and invoicing.
+3. Security: "Confidential Vault" for sensitive family/criminal cases, detailed Audit Logs.
+4. Localized: Fully bilingual (Arabic/English) interface, compliant with UAE data sovereignty laws.
+5. Pricing: Starter (199 AED/user), Professional (349 AED/user), Enterprise (Custom).
 `;
+
+const OFFICIAL_SOURCES_LIST = `
+1. UAE Legislation (uaelegislation.gov.ae)
+2. Ministry of Justice (moj.gov.ae)
+3. Abu Dhabi Judicial Department (adjd.gov.ae)
+4. Dubai Courts (dc.gov.ae)
+5. DIFC Courts (difccourts.ae) for common law context.
+`;
+
+const getSystemPrompt = (lang: 'en' | 'ar') => {
+  const isEn = lang === 'en';
+
+  const roleDefinition = isEn 
+    ? "You are a Senior Legal Technology Consultant for LEXCORA. You are speaking to high-net-worth lawyers and legal professionals in the UAE."
+    : "أنت مستشار أول في التكنولوجيا القانونية لدى ليكسكورا. أنت تتحدث مع محامين ومستشارين قانونيين بارزين في الإمارات.";
+
+  const tone = isEn
+    ? "Your tone is professional, authoritative, concise, and helpful. Use legal terminology appropriately but remain accessible."
+    : "أسلوبك مهني، موثوق، موجز، ومفيد. استخدم المصطلحات القانونية بشكل مناسب مع الحفاظ على الوضوح.";
+
+  const objectives = isEn
+    ? `
+      OBJECTIVES:
+      1. Answer queries about UAE Law using ONLY official sources.
+      2. Answer queries about LEXCORA's features using the provided product context.
+      3. If a user discusses a pain point (e.g., "I missed a deadline"), empathetically mention how LEXCORA's features (e.g., Automated Deadline Timers) can solve it.
+      4. If the query is not related to Law, Legal Practice, or LEXCORA, politely decline to answer.
+    `
+    : `
+      الأهداف:
+      1. الإجابة على استفسارات القانون الإماراتي باستخدام المصادر الرسمية فقط.
+      2. الإجابة على الأسئلة المتعلقة بميزات ليكسكورا.
+      3. إذا ذكر المستخدم مشكلة (مثل "فوت موعداً نهائياً")، اذكر كيف يمكن لميزات ليكسكورا (مثل مؤقتات المواعيد الآلية) حلها.
+      4. إذا كان الاستفسار غير متعلق بالقانون أو المحاماة أو ليكسكورا، اعتذر بلطف عن الإجابة.
+    `;
+
+  const disclaimers = isEn
+    ? "Mandatory Disclaimer to end every message: 'Disclaimer: Information provided is for educational purposes only and does not constitute legal advice.'"
+    : "إخلاء المسؤولية الإلزامي في نهاية كل رسالة: 'تنويه: المعلومات المقدمة للأغراض التعليمية فقط ولا تشكل مشورة قانونية.'";
+
+  return `
+    ${roleDefinition}
+    ${tone}
+
+    ${LEXCORA_PRODUCT_CONTEXT}
+
+    OFFICIAL SOURCES TO PRIORITIZE:
+    ${OFFICIAL_SOURCES_LIST}
+
+    ${objectives}
+
+    INSTRUCTIONS:
+    - Structure answers clearly (use bullet points if listing laws or features).
+    - Keep responses under 150 words unless asked for a detailed explanation.
+    - Always cite the specific law or article number if found.
+    - ${disclaimers}
+  `;
+};
 
 function extractSources(response: GenerateContentResponse): Source[] {
   // @ts-ignore - groundingMetadata types access
@@ -59,17 +112,11 @@ export const getLegalAssistantResponse = async (query: string, lang: 'en' | 'ar'
   }
 
   try {
-    const langInstruction = lang === 'en'
-      ? "Answer in English. Keep it professional, authoritative, and under 100 words. You MUST append this exact disclaimer at the end: 'Disclaimer: This information is for educational purposes only and does not constitute legal advice.'"
-      : "Answer in Arabic. Keep it professional, authoritative, and under 100 words. You MUST append this exact disclaimer at the end: 'تنويه: هذه المعلومات للأغراض التعليمية فقط ولا تشكل مشورة قانونية.'";
-
-    const systemInstruction = `${OFFICIAL_SOURCES_CONTEXT}\n${langInstruction}`;
-
     const response = await ai.models.generateContent({
       model: 'gemini-2.5-flash',
       contents: query,
       config: {
-        systemInstruction: systemInstruction,
+        systemInstruction: getSystemPrompt(lang),
         tools: [{ googleSearch: {} }],
       },
     });
@@ -96,12 +143,6 @@ export class LexCoraChatSession {
   constructor(lang: 'en' | 'ar', history: ChatMessage[] = []) {
     this.lang = lang;
     if (apiKey) {
-      const langInstruction = lang === 'en'
-        ? "Answer in English. Be concise, professional, and use a tone suitable for high-net-worth legal professionals. You MUST always conclude your response with a clear disclaimer that this information is not legal advice."
-        : "Answer in Arabic. Be concise, professional, and use a tone suitable for high-net-worth legal professionals. You MUST always conclude your response with a clear disclaimer that this information is not legal advice.";
-      
-      const systemInstruction = `${OFFICIAL_SOURCES_CONTEXT}\n${langInstruction}`;
-      
       // Convert internal ChatMessage format to Gemini SDK history format
       const chatHistory = history.map(msg => ({
         role: msg.role,
@@ -111,7 +152,7 @@ export class LexCoraChatSession {
       this.chat = ai.chats.create({
         model: 'gemini-3-pro-preview',
         config: { 
-          systemInstruction,
+          systemInstruction: getSystemPrompt(lang),
           tools: [{ googleSearch: {} }] 
         },
         history: chatHistory
@@ -139,8 +180,8 @@ export class LexCoraChatSession {
       console.error("Gemini Chat Error:", error);
       return {
         text: this.lang === 'en' 
-          ? "I apologize, but I am encountering technical difficulties at the moment."
-          : "أعتذر، ولكنني أواجه صعوبات فنية في الوقت الحالي.",
+          ? "I apologize, but I am encountering technical difficulties at the moment. Please try again or contact our support."
+          : "أعتذر، ولكنني أواجه صعوبات فنية في الوقت الحالي. يرجى المحاولة مرة أخرى أو الاتصال بالدعم.",
         sources: []
       };
     }
